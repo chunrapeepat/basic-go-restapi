@@ -1,6 +1,7 @@
 package main
 
 import (
+  "fmt"
   "log"
   "encoding/json"
   "net/http"
@@ -22,19 +23,18 @@ type Address struct {
 var people []Person
 
 func getPersonEndpoint(w http.ResponseWriter, req *http.Request) {
-
-}
-
-func getPeopleEndpoint(w http.ResponseWriter, req *http.Request) {
   json.NewEncoder(w).Encode(people)
 }
 
-func createPersonEndpoint(w http.ResponseWriter, req *http.Request) {
-
-}
-
-func deletePersonEndpoint(w http.ResponseWriter, req *http.Request) {
-
+func getPeopleEndpoint(w http.ResponseWriter, req *http.Request) {
+  params := mux.Vars(req)
+  for _, item := range people {
+    if item.ID == params["id"] {
+      json.NewEncoder(w).Encode(item)
+      return
+    }
+  }
+  json.NewEncoder(w).Encode(&Person{})
 }
 
 func main() {
@@ -45,7 +45,7 @@ func main() {
 
   router.HandleFunc("/person", getPersonEndpoint).Methods("GET")
   router.HandleFunc("/person/{id}", getPeopleEndpoint).Methods("GET")
-  router.HandleFunc("/person/{id}", createPersonEndpoint).Methods("POST")
-  router.HandleFunc("/person/{id}", deletePersonEndpoint).Methods("DELETE")
   log.Fatal(http.ListenAndServe(":3000", router))
+
+  fmt.Println("> Server is running on port 3000")
 }
